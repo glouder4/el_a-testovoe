@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="4f942112-3dbc-4a3a-a08c-9e6aff0dc904" name="my-server" url="http://vector.glouder.beget.tech">
+        <fileTransfer rootFolder="/home/g/glouder/vector.glouder.beget.tech" accessType="SFTP" host="glouder.beget.tech" port="22" sshConfigId="9c59501a-7214-4573-aacc-e483bee8a239" sshConfig="glouder@glouder.beget.tech:22 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
