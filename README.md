@@ -1,63 +1,76 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+# Тестовое задание: Laravel и внешнее API
 
+Прокси к внешнему API с сохранением выгрузок в БД, веб-тестер эндпоинтов и личный кабинет с таблицами, фильтрами и аналитикой (графики).
 
-### Тестовое API на фреймворке Laravel
+## Демо
 
-#### Реализована выдача сущностей 
-- Продажи 
-- Заказы
-- Склады
-- Доходы
+Рабочий стенд на хостинге: **[http://vector.glouder.beget.tech/cabinet](http://vector.glouder.beget.tech/cabinet)** — там уже настроены окружение, подключение к внешнему API и учётная запись; можно сразу зайти в кабинет, открыть тестер API, посмотреть таблицы, фильтры, аналитику и синхронизацию без локальной установки.
 
-### Основное
+## Быстрый старт
 
-- Авторизация происходит посредством передачи секретного токена в строке запроса с параметром **key**
-- Формат даты **Y-m-d**
-- Формат дата + время **Y-m-d H:i:s**
-- Все эндпоинты выдают ответ в **json** с пагинацией
-- Лимит на количество возвращаемых записей за запрос - **500** (по умолчанию выдает по **500** строк)
-- Если нужно меньше, то передавать в параметре **limit** в строке запроса
-- Перебор данных происходит по параметру **page** в строке запроса
+1. Скопируйте окружение: `cp .env.example .env` и выполните `php artisan key:generate`.
+2. Настройте БД в `.env`, затем миграции и сидер:
+   - `php artisan migrate`
+   - `php artisan db:seed`
+3. Укажите параметры внешнего API (при необходимости):
+   - `EXTERNAL_API_BASE_URL`
+   - `EXTERNAL_API_KEY`
+   - `EXTERNAL_API_TIMEOUT`
+4. Запуск приложения: `php artisan serve` (или ваш способ: Docker, Octane и т.д.).
 
-_**Пример запроса:** /api/orders?dateFrom={Дата выгрузки ОТ}&dateTo={Дата выгрузки ДО}}&page={номер страницы}&limit={количество записей}key={ваш токен}_
+## Вход в веб-интерфейс
 
-#### Продажи
+После `php artisan db:seed` доступна учётная запись:
 
-Параметры:
+| Поле     | Значение      |
+|----------|---------------|
+| **Email**    | `admin@local` |
+| **Пароль**   | `password`    |
 
-- dateFrom
-- dateTo
+- Страница входа: **`/login`**
+- После входа открывается **`/cabinet`** (данные из локальной БД, синхронизация с API, режим «Аналитика»).
+- **`/tester`** — формы вызова прокси-эндпоинтов `/api/*` (доступ защищён авторизацией).
 
-`Путь: GET /api/sales`
+## Прокси API (внешний сервис)
 
-#### Заказы
+Авторизация к внешнему API — параметр **`key`** в query-строке.
 
-Параметры:
+- Формат даты: **`Y-m-d`**
+- Формат даты и времени: **`Y-m-d H:i:s`**
+- Ответы в **JSON**, пагинация через **`page`** и **`limit`** (максимум **500** записей за запрос).
 
-- dateFrom
-- dateTo
+Пример:
 
-`Путь: GET /api/orders`
+`GET /api/orders?dateFrom=2025-01-01&dateTo=2025-01-31&page=1&limit=100&key=ВАШ_ТОКЕН`
 
-#### Склады 
-_Выгрузка только за текущий день_
+### Эндпоинты
 
-Параметры:
+| Раздел   | Метод | Путь            | Параметры периода        |
+|----------|-------|-----------------|---------------------------|
+| Продажи  | GET   | `/api/sales`    | `dateFrom`, `dateTo`      |
+| Заказы   | GET   | `/api/orders`   | `dateFrom`, `dateTo`      |
+| Склады   | GET   | `/api/stocks`   | только **`dateFrom`** (текущий день выгрузки) |
+| Доходы   | GET   | `/api/incomes`  | `dateFrom`, `dateTo`      |
 
-- dateFrom
+Локальные снимки из БД (без обращения к внешнему API в момент запроса):
 
-`Путь: GET /api/stocks`
+- `/api/sales/local`, `/api/orders/local`, `/api/stocks/local`, `/api/incomes/local`
 
-#### Доходы
+## Кабинет (локальные JSON)
 
-Параметры:
+Под авторизацией:
 
-- dateFrom
-- dateTo
+- Таблицы с фильтрами и пагинацией:  
+  `GET /cabinet/data/orders`, `/sales`, `/stocks`, `/incomes`
+- Агрегаты и данные для графиков:  
+  `GET /cabinet/analytics/orders`, `/sales`, `/stocks`, `/incomes`  
+  (те же фильтры по датам и строкам, что и у таблиц, без `page` / `per_page`).
 
-`Путь: GET /api/incomes`
+## Прочее
 
-`Стек: docker/docker-compose, php 8.1, Laravel 8, Laravel Octane`
+- Пример переменных окружения — в **`.env.example`**.
+- [Коллекция Postman](https://www.postman.com/cy322666/workspace/app-api-test/overview) (если актуальна для вашей среды).
 
-[Ссылка на коллекцию Postman](https://www.postman.com/cy322666/workspace/app-api-test/overview)
+---
 
+<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="280" alt="Laravel"></a></p>
